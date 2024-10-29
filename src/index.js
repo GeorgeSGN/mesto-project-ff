@@ -51,7 +51,7 @@ closeButtons.forEach((button) => {
   button.addEventListener('click', () => closeModal(button.closest('.popup')));
 });
 
-// Открытие модального окна по кнопке редактирования.
+// Открытие модального окна по кнопке.
 editButton.addEventListener('click', () => { 
   nameInput.value = profileTitle.textContent;
   jobInput.value = profileDescription.textContent;
