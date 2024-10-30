@@ -1,7 +1,8 @@
 // Импорт функции и данных из модулей.
-import { initialCards,createCard, toggleLike, deleteCard } from './components/cards.js';
+import { initialCards } from './components/initialCards.js';
+import { createCard, toggleLike, deleteCard } from './components/cards.js';
 import { openModal, closeModal } from './components/modal.js';
-import '../pages/index.css';
+import './pages/index.css';
 
 // Ссылка на список карточек.
 const cardList = document.querySelector('.places__list');
@@ -14,12 +15,12 @@ const editButton = document.querySelector('.profile__edit-button');
 const popupEdit = document.querySelector('.popup_type_edit');
 const closeButtons = document.querySelectorAll('.popup__close');
 // Ссылка на форму.
-const formElement = document.querySelector('.popup__form[name="edit-profile"]');
+const profileForm = document.querySelector('.popup__form[name="edit-profile"]');
 // Ссылки на элементы профиля и поля формы.
 const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
-const nameInput = formElement.querySelector('.popup__input_type_name');
-const jobInput = formElement.querySelector('.popup__input_type_description');
+const nameInput = profileForm.querySelector('.popup__input_type_name');
+const jobInput = profileForm.querySelector('.popup__input_type_description');
 // Ссылки на кнопку добавления карточки и на соответствующее модальное окно.
 const addButton = document.querySelector('.profile__add-button');
 const popupNewCard = document.querySelector('.popup_type_new-card');
@@ -59,7 +60,7 @@ editButton.addEventListener('click', () => {
 });
 
 // Привязка обработчика события отправки формы к форме
-formElement.addEventListener('submit', function handleFormSubmit(evt) {
+profileForm.addEventListener('submit', function handleFormSubmit(evt) {
   evt.preventDefault();
   profileTitle.textContent = nameInput.value;
   profileDescription.textContent = jobInput.value;
