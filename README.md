@@ -20,3 +20,8 @@
 ```
 https://github.com/GeorgeSGN/mesto-project-ff.git
 ```
+## Демонстрация проекта 
+
+```
+https://georgesgn.github.io/mesto-project-ff/
+```
