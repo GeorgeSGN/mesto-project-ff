@@ -2,6 +2,7 @@
 import { initialCards } from './components/initialCards.js';
 import { createCard, toggleLike, deleteCard } from './components/cards.js';
 import { openModal, closeModal } from './components/modal.js';
+import { enableValidation, clearValidation } from './components/validation.js';
 import './pages/index.css';
 
 // Ссылка на список карточек.
@@ -28,6 +29,19 @@ const popupNewCard = document.querySelector('.popup_type_new-card');
 const formNewCard = document.querySelector('.popup__form[name="new-place"]');
 const placeNameInput = document.querySelector('.popup__input_type_card-name');
 const placeLinkInput = document.querySelector('.popup__input_type_url');
+
+// Валидация
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible',
+};
+
+// Включение валидации всех форм
+enableValidation(validationConfig);
 
 // Открытие попапа изображения.
 function handleCardClick(link, name) {
@@ -56,8 +70,27 @@ closeButtons.forEach((button) => {
 editButton.addEventListener('click', () => { 
   nameInput.value = profileTitle.textContent;
   jobInput.value = profileDescription.textContent;
+  // Очищаем ошибки валидации перед открытием.
+  clearValidation(profileForm, validationConfig);
+  // Включаем валидацию для данной формы, чтобы проверка валидности сработала сразу.
+  enableValidation(validationConfig);
+  // Обновляем состояние кнопки "Сохранить" (если форма валидна, кнопка будет активной).
+  toggleSubmitButton(profileForm);
   openModal(popupEdit)
 });
+
+// Функция для обновления состояния кнопки отправки в зависимости от валидности формы.
+function toggleSubmitButton(form) {
+  const submitButton = form.querySelector(validationConfig.submitButtonSelector);
+  const isValid = form.checkValidity(); // Проверяем, валидна ли форма
+  if (isValid) {
+    submitButton.disabled = false;
+    submitButton.classList.remove(validationConfig.inactiveButtonClass);
+  } else {
+    submitButton.disabled = true;
+    submitButton.classList.add(validationConfig.inactiveButtonClass);
+  }
+}
 
 // Привязка обработчика события отправки формы к форме
 profileForm.addEventListener('submit', function handleFormSubmit(evt) {
