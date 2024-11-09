@@ -2,6 +2,7 @@
 import { createCard, toggleLike } from './components/cards.js';
 import { openModal, closeModal } from './components/modal.js';
 import { enableValidation, clearValidation } from './components/validation.js';
+import { getUserInfo, getCards, updateProfile, addNewCard, deleteCardFromServer, updateAvatar } from './components/api.js';
 import './pages/index.css';
 
 // Ссылка на список карточек.
@@ -35,43 +36,6 @@ const token = '08b8cb64-b28b-43f8-bf7a-a0148ff11a79';
 const cohortId = 'wff-cohort-25';
 let currentUserId;
 
-// Функция для загрузки информации о пользователе
-function getUserInfo() {
-  return fetch(`https://nomoreparties.co/v1/${cohortId}/users/me`, {
-    headers: {
-      authorization: token,
-    },
-  })
-    .then((res) => res.json())
-    .catch((err) => console.error('Ошибка при загрузке данных о пользователе:', err));
-}
-
-// Функция для загрузки карточек
-function getCards() {
-  return fetch(`https://nomoreparties.co/v1/${cohortId}/cards`, {
-    headers: {
-      authorization: token,
-    },
-  })
-    .then((res) => res.json())
-    .catch((err) => console.error('Ошибка при загрузке карточек:', err));
-}
-
-// Функция для обновления профиля
-function updateProfile(name, about) {
-  return fetch(`https://nomoreparties.co/v1/${cohortId}/users/me`, {
-    method: 'PATCH',
-    headers: {
-      authorization: token,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ name, about }),
-  })
-    .then((res) => res.json())
-    .catch((err) => console.error('Ошибка при обновлении профиля:', err));
-}
-
-
 // Сначала загружаем информацию о пользователе, а потом карточки
 Promise.all([getUserInfo(), getCards()])
   .then(([userData, cards]) => {
@@ -93,19 +57,6 @@ Promise.all([getUserInfo(), getCards()])
   })
   .catch((err) => console.error('Ошибка при загрузке данных с сервера:', err));
 
-// Функция для добавления новой карточки
-function addNewCard(name, link) {
-  return fetch(`https://nomoreparties.co/v1/${cohortId}/cards`, {
-    method: 'POST',
-    headers: {
-      authorization: token,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ name, link })
-  })
-  .then((res) => res.json())
-  .catch((err) => console.error('Ошибка при добавлении карточки:', err));
-}
 
 // Ссылка на попап удаления карточки и на кнопку "Да"
 const popupDeleteCard = document.querySelector('.popup_type_delete-card');
@@ -124,26 +75,14 @@ function openDeletePopup(cardElement) {
 confirmDeleteButton.addEventListener('click', () => {
   if (cardToDelete) {
     const cardId = cardToDelete.dataset.cardId; // Берем _id карточки из data-атрибута
-    deleteCardFromServer(cardId, cardToDelete);
-  }
-  closeModal(popupDeleteCard);  // Закрываем попап после подтверждения
-});
-
-// Функция отправки DELETE-запроса на сервер
-function deleteCardFromServer(cardId, cardElement) {
-  fetch(`https://nomoreparties.co/v1/${cohortId}/cards/${cardId}`, {
-    method: 'DELETE',
-    headers: {
-      authorization: token,
-    },
-  })
-    .then((res) => res.json())
+    deleteCardFromServer(cardId, cardToDelete)
     .then(() => {
-      // Удаляем карточку из DOM
-      cardElement.remove();
+      cardToDelete.remove(); // Удаляем элемент карточки из DOM после успешного удаления с сервера
+      closeModal(popupDeleteCard); // Закрываем попап после подтверждения
     })
     .catch((err) => console.error('Ошибка при удалении карточки:', err));
-}
+  }
+});
 
 // Аватар
 const avatarEditIcon = document.querySelector('.profile__image'); // Иконка редактирования
@@ -164,19 +103,10 @@ avatarPopup.addEventListener('submit', (event) => {
   submitButton.textContent = 'Сохранение...';
   submitButton.disabled = true;
 
-  fetch(`https://nomoreparties.co/v1/${cohortId}/users/me/avatar`, {
-    method: 'PATCH',
-    headers: {
-      authorization: token,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ avatar: avatarLink })
-  })
-  .then((res) => res.ok ? res.json() : Promise.reject(res.statusText))
-  .then((data) => {
-    document.querySelector('.profile__image').style.backgroundImage = `url("${data.avatar}")`; // Добавлены кавычки
-    closeModal(avatarPopup); // Закрываем попап
-
+  updateAvatar(avatarLink)
+    .then((data) => {
+      document.querySelector('.profile__image').style.backgroundImage = `url("${data.avatar}")`;
+      closeModal(avatarPopup);
     // Очищаем поле ссылки аватара
     avatarInput.value = '';
 
