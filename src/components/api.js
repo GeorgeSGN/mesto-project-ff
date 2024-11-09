@@ -1,19 +1,33 @@
 const token = '08b8cb64-b28b-43f8-bf7a-a0148ff11a79';
 const cohortId = 'wff-cohort-25';
 
+// Функция для проверки ответа сервера
+function checkResponse(res) {
+  if (res.ok) {
+    return res.json();
+  }
+  return Promise.reject(`Ошибка ${res.status}`);
+}
+
+// Функция добавления или удаления лайка
+export function toggleLikeApi(cardId, isLiked, cohortId, token) {
+  const method = isLiked ? 'DELETE' : 'PUT';
+  return fetch(`https://nomoreparties.co/v1/${cohortId}/cards/likes/${cardId}`, {
+    method: method,
+    headers: {
+      authorization: token,
+    },
+  })
+  .then(checkResponse);
+}
+
 export function getUserInfo() {
   return fetch(`https://nomoreparties.co/v1/${cohortId}/users/me`, {
     headers: {
       authorization: token,
     },
   })
-  .then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка при загрузке данных о пользователе: ${res.status}`);
-  })
-  .catch((err) => console.error(err));
+  .then(checkResponse)
 }
 
 export function getCards() {
@@ -22,13 +36,7 @@ export function getCards() {
       authorization: token,
     },
   })
-  .then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка при загрузке карточек: ${res.status}`);
-  })
-  .catch((err) => console.error(err));
+  .then(checkResponse)
 }
 
 export function updateProfile(name, about) {
@@ -40,13 +48,7 @@ export function updateProfile(name, about) {
     },
     body: JSON.stringify({ name, about }),
   })
-  .then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка при обновлении профиля: ${res.status}`);
-  })
-  .catch((err) => console.error(err));
+  .then(checkResponse)
 }
 
 export function addNewCard(name, link) {
@@ -58,13 +60,7 @@ export function addNewCard(name, link) {
     },
     body: JSON.stringify({ name, link })
   })
-  .then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка при добавлении карточки: ${res.status}`);
-  })
-  .catch((err) => console.error(err));
+  .then(checkResponse)
 }
 
 export function deleteCardFromServer(cardId) {
@@ -74,13 +70,7 @@ export function deleteCardFromServer(cardId) {
       authorization: token,
     },
   })
-  .then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка при удалении карточки: ${res.status}`);
-  })
-  .catch((err) => console.error(err));
+  .then(checkResponse)
 }
 
 export function updateAvatar(avatarLink) {
@@ -92,11 +82,5 @@ export function updateAvatar(avatarLink) {
     },
     body: JSON.stringify({ avatar: avatarLink })
   })
-  .then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка при обновлении аватара: ${res.status}`);
-  })
-  .catch((err) => console.error(err));
+  .then(checkResponse)
 }

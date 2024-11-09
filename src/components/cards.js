@@ -1,3 +1,5 @@
+import { toggleLikeApi } from './api.js';
+
 
 // Функция создания новой карточки
 export function createCard(cardData, handleDeleteCard, handleLikeCard, handleCardClick, currentUserId) {
@@ -37,20 +39,9 @@ export function createCard(cardData, handleDeleteCard, handleLikeCard, handleCar
 
 // Функция переключения лайка.
 export function toggleLike(cardId, likeButton, likeCountElement, cohortId, token) {
-  // Проверяем, активен ли уже лайк
   const isLiked = likeButton.classList.contains('card__like-button_is-active');
 
-  // В зависимости от того, активен ли лайк, отправляем запрос на добавление или удаление лайка
-  const method = isLiked ? 'DELETE' : 'PUT';
-
-  // Отправляем запрос на сервер
-  fetch(`https://nomoreparties.co/v1/${cohortId}/cards/likes/${cardId}`, {
-    method: method,
-    headers: {
-      authorization: token,
-    },
-  })
-    .then((res) => res.json())
+  toggleLikeApi(cardId, isLiked, cohortId, token)
     .then((cardData) => {
       // Переключаем класс для лайк-кнопки
       likeButton.classList.toggle('card__like-button_is-active');
@@ -60,4 +51,3 @@ export function toggleLike(cardId, likeButton, likeCountElement, cohortId, token
     })
     .catch((err) => console.error('Ошибка при переключении лайка:', err));
 }
-
