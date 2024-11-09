@@ -1,6 +1,6 @@
 
 // Функция создания новой карточки
-export function createCard(cardData, handleDeleteCard, handleLikeCard, handleCardClick) {
+export function createCard(cardData, handleDeleteCard, handleLikeCard, handleCardClick, currentUserId) {
   // Поиск шаблона и клонирование.
   const cardTemplate = document.querySelector('#card-template').content.querySelector('.card');
   const cardElement = cardTemplate.cloneNode(true);
@@ -10,32 +10,54 @@ export function createCard(cardData, handleDeleteCard, handleLikeCard, handleCar
   const deleteButton = cardElement.querySelector('.card__delete-button');
   // Кнопка лайка.
   const likeButton = cardElement.querySelector('.card__like-button');
+  const likeCount = cardElement.querySelector('.card__like-count');
 
   // Заполняем данными карточки.
   cardImage.src = cardData.link;
   cardImage.alt = `Фото ${cardData.name}`;
   cardTitle.textContent = cardData.name;
+  likeCount.textContent = cardData.likes.length;
 
-  // Открытие попапа при клике на изображение карточки.
+ // Устанавливаем data-атрибут с _id для использования при удалении
+ cardElement.dataset.cardId = cardData._id;
+
+  // Проверка: показывать иконку удаления только для карточек, созданных текущим пользователем
+  if (cardData.owner._id !== currentUserId) {
+    deleteButton.style.display = 'none'; // Скрыть иконку удаления, если это не карточка текущего пользователя
+  } else {
+    deleteButton.addEventListener('click', () => handleDeleteCard(cardElement));
+  }
+
+  likeButton.addEventListener('click', () => handleLikeCard(cardData._id, likeButton, likeCount));
   cardImage.addEventListener('click', () => handleCardClick(cardData.link, cardData.name));
-
-  // Обработчик на кнопку удаления.
-  deleteButton.addEventListener('click', () => handleDeleteCard(cardElement));
-
-  // Обработчик на кнопку лайка.
-  likeButton.addEventListener('click', () => handleLikeCard(likeButton));
 
   // Возврат готовой карточки.
   return cardElement;
 }
 
 // Функция переключения лайка.
-export function toggleLike(likeButton) {
-  likeButton.classList.toggle('card__like-button_is-active');
-}
+export function toggleLike(cardId, likeButton, likeCountElement, cohortId, token) {
+  // Проверяем, активен ли уже лайк
+  const isLiked = likeButton.classList.contains('card__like-button_is-active');
 
-// Функция удаления карточки.
-export function deleteCard(cardElement) {
-  cardElement.remove();
+  // В зависимости от того, активен ли лайк, отправляем запрос на добавление или удаление лайка
+  const method = isLiked ? 'DELETE' : 'PUT';
+
+  // Отправляем запрос на сервер
+  fetch(`https://nomoreparties.co/v1/${cohortId}/cards/likes/${cardId}`, {
+    method: method,
+    headers: {
+      authorization: token,
+    },
+  })
+    .then((res) => res.json())
+    .then((cardData) => {
+      // Переключаем класс для лайк-кнопки
+      likeButton.classList.toggle('card__like-button_is-active');
+
+      // Обновляем количество лайков
+      likeCountElement.textContent = cardData.likes.length;
+    })
+    .catch((err) => console.error('Ошибка при переключении лайка:', err));
 }
 

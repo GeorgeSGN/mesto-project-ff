@@ -48,3 +48,38 @@
   background-color: #fff;
   border: 1px solid #000000;
 }
+
+.popup_type_delete-card {
+  display: none;
+  /* Стилизация, чтобы попап был скрытым по умолчанию */
+}
+
+.popup__content {
+  padding: 34px;
+}
+
+.popup__title {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.popup__actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.popup__button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.popup__button_confirm-delete {
+  background-color: black;
+  color: white;
+  margin-top: 0px;
+}
+
+.popup_type_avatar {
+  display: none; /* Скрыт по умолчанию */
+}

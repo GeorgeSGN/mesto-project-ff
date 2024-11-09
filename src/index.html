@@ -23,7 +23,11 @@
           <div
             class="profile__image"
             style="background-image: url(<%=require('./images/avatar.jpg')%>)"
-          ></div>
+          >
+            <div class="profile__image">
+              <div class="profile__edit-icon"></div>
+            </div>
+          </div>
           <div class="profile__info">
             <h1 class="profile__title">Жак-Ив Кусто</h1>
             <button class="profile__edit-button" type="button"></button>
@@ -38,6 +42,25 @@
       <footer class="footer page__section">
         <p class="footer__copyright">© 2021 Mesto Russia</p>
       </footer>
+      <div class="popup popup_type_avatar">
+        <form
+          class="popup__content popup__content_avatar popup__form"
+          name="avatar-form"
+        >
+          <button type="button" class="popup__close"></button>
+          <h2 class="popup__title">Обновить аватар</h2>
+          <input
+            type="url"
+            name="avatar-link"
+            id="avatar-link"
+            placeholder="Ссылка на новый аватар"
+            class="popup__input"
+            required
+          />
+          <span class="popup__error" id="avatar-link-error"></span>
+          <button type="submit" class="popup__button">Сохранить</button>
+        </form>
+      </div>
       <div class="popup popup_type_edit">
         <div class="popup__content">
           <button type="button" class="popup__close"></button>
@@ -133,6 +156,18 @@
         </div>
       </div>
     </div>
+    <div class="popup popup_type_delete-card">
+      <div class="popup__content popup__content_delete-card">
+        <button type="button" class="popup__close"></button>
+        <h3 class="popup__title">Вы уверены?</h3>
+        <button
+          type="button"
+          class="popup__button popup__button_confirm-delete"
+        >
+          Да
+        </button>
+      </div>
+    </div>
 
     <template id="card-template">
       <li class="places__item card">
@@ -140,7 +175,10 @@
         <button type="button" class="card__delete-button"></button>
         <div class="card__description">
           <h2 class="card__title"></h2>
-          <button type="button" class="card__like-button"></button>
+          <div class="card__like-group">
+            <button type="button" class="card__like-button"></button>
+            <span class="card__like-count"></span>
+          </div>
         </div>
       </li>
     </template>
