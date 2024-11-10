@@ -27,7 +27,7 @@ function validateInput(input, config) {
   if (input.validity.valueMissing) {
     showError(input, errorElement, "Вы пропустили это поле.", config);
   }
-  // Если patternMismatch для URL (проверка на корректность URL)
+  // Если это поле URL, проверяем только на корректность URL
   else if (input.type === 'url' && input.validity.patternMismatch) {
     showError(input, errorElement, "Введите корректный URL.", config);
   }
@@ -36,7 +36,7 @@ function validateInput(input, config) {
     showError(input, errorElement, "Разрешены только буквы, пробелы и дефисы.", config);
   }
   // Если поле не соответствует минимальной длине
-  else if (input.minLength && input.value.length < input.minLength) {
+  else if (input.minLength && input.value.length < input.minLength && input.type !== 'url') {
     showError(
       input,
       errorElement,
@@ -45,7 +45,7 @@ function validateInput(input, config) {
     );
   }
   // Если поле превышает максимальную длину
-  else if (input.maxLength && input.value.length > input.maxLength) {
+  else if (input.maxLength && input.value.length > input.maxLength && input.type !== 'url') {
     showError(
       input,
       errorElement,
