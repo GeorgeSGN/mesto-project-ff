@@ -1,5 +1,5 @@
-const token = '08b8cb64-b28b-43f8-bf7a-a0148ff11a79';
-const cohortId = 'wff-cohort-25';
+export const token = '08b8cb64-b28b-43f8-bf7a-a0148ff11a79';
+export const cohortId = 'wff-cohort-25';
 
 // Функция для проверки ответа сервера
 function checkResponse(res) {

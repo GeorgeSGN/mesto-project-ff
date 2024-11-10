@@ -44,6 +44,7 @@
       </footer>
       <div class="popup popup_type_avatar">
         <form
+          novalidate
           class="popup__content popup__content_avatar popup__form"
           name="avatar-form"
         >
@@ -55,6 +56,7 @@
             id="avatar-link"
             placeholder="Ссылка на новый аватар"
             class="popup__input"
+            pattern="https?://.+"
             required
           />
           <span class="popup__error" id="avatar-link-error"></span>
@@ -65,7 +67,7 @@
         <div class="popup__content">
           <button type="button" class="popup__close"></button>
           <h3 class="popup__title">Редактировать профиль</h3>
-          <form class="popup__form" name="edit-profile">
+          <form novalidate class="popup__form" name="edit-profile">
             <div class="popup__field">
               <!-- Обёртка для поля "Имя" и сообщения об ошибке -->
               <input
@@ -75,6 +77,7 @@
                 class="popup__input popup__input_type_name"
                 placeholder="Имя"
                 required
+                pattern="^[A-Za-zА-Яа-яЁё\s\-]+$"
                 minlength="2"
                 maxlength="40"
               />
@@ -87,6 +90,7 @@
                 type="text"
                 name="description"
                 id="about"
+                pattern="^[A-Za-zА-Яа-яЁё\s\-]+$"
                 class="popup__input popup__input_type_description"
                 placeholder="Занятие"
                 required
@@ -111,11 +115,12 @@
         <div class="popup__content">
           <button type="button" class="popup__close"></button>
           <h3 class="popup__title">Новое место</h3>
-          <form class="popup__form" name="new-place">
+          <form novalidate class="popup__form" name="new-place">
             <!-- Обертка для поля "Название" и сообщения об ошибке -->
             <div class="popup__field">
               <input
                 type="text"
+                pattern="^[A-Za-zА-Яа-яЁё\s\-]+$"
                 name="place-name"
                 id="place-name"
                 class="popup__input popup__input_type_card-name"
@@ -133,6 +138,7 @@
                 name="link"
                 class="popup__input popup__input_type_url"
                 placeholder="Ссылка на картинку"
+                pattern="https?://.+"
                 required
               />
               <span class="popup__error" id="placeLink-error"></span>

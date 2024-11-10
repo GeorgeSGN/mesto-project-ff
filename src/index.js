@@ -1,8 +1,8 @@
 //  === Импорт функций и стилей из других модулей ===
 import { createCard, toggleLike } from './components/cards.js';
 import { openModal, closeModal } from './components/modal.js';
-import { enableValidation, clearValidation } from './components/validation.js';
-import { getUserInfo, getCards, updateProfile, addNewCard, deleteCardFromServer, updateAvatar } from './components/api.js';
+import { enableValidation, clearValidation, toggleButtonState } from './components/validation.js';
+import { getUserInfo, getCards, updateProfile, addNewCard, deleteCardFromServer, updateAvatar, cohortId, token } from './components/api.js';
 import './pages/index.css';
 
 // === Ссылки на элементы страницы ===
@@ -40,8 +40,6 @@ const placeLinkInput = document.querySelector('.popup__input_type_url');
 
 // === Работа с API и данные пользователя ===
 
-const token = '08b8cb64-b28b-43f8-bf7a-a0148ff11a79'; // Токен доступа
-const cohortId = 'wff-cohort-25'; // Идентификатор группы
 let currentUserId; // ID текущего пользователя
 
 // Загружаем информацию о пользователе и карточках с сервера
@@ -114,14 +112,16 @@ avatarPopup.addEventListener('submit', (event) => {
   submitButton.disabled = true;
 
   updateAvatar(avatarLink)
-    .then((data) => {
-      document.querySelector('.profile__image').style.backgroundImage = `url("${data.avatar}")`;
-      closeModal(avatarPopup);
-      avatarInput.value = '';
-      submitButton.textContent = 'Сохранить';
-      submitButton.disabled = false;
-    })
-    .catch((err) => console.error(`Ошибка: ${err}`));
+  .then((data) => {
+    document.querySelector('.profile__image').style.backgroundImage = `url("${data.avatar}")`;
+    closeModal(avatarPopup);
+    avatarInput.value = '';
+  })
+  .catch((err) => console.error(`Ошибка: ${err}`))
+  .finally(() => {
+    submitButton.textContent = 'Сохранить';
+    submitButton.disabled = false;
+  });
 });
 
 // === Валидация форм ===
@@ -159,22 +159,9 @@ editButton.addEventListener('click', () => {
   jobInput.value = profileDescription.textContent;
   clearValidation(profileForm, validationConfig);
   enableValidation(validationConfig);
-  toggleSubmitButton(profileForm);
+  toggleButtonState(profileForm.querySelectorAll(validationConfig.inputSelector), profileForm.querySelector(validationConfig.submitButtonSelector), validationConfig);
   openModal(popupEdit);
 });
-
-// Обновление состояния кнопки отправки
-function toggleSubmitButton(form) {
-  const submitButton = form.querySelector(validationConfig.submitButtonSelector);
-  const isValid = form.checkValidity();
-  if (isValid) {
-    submitButton.disabled = false;
-    submitButton.classList.remove(validationConfig.inactiveButtonClass);
-  } else {
-    submitButton.disabled = true;
-    submitButton.classList.add(validationConfig.inactiveButtonClass);
-  }
-}
 
 // Обработчик отправки формы профиля
 profileForm.addEventListener('submit', function handleFormSubmit(evt) {
@@ -187,18 +174,33 @@ profileForm.addEventListener('submit', function handleFormSubmit(evt) {
   submitButton.disabled = true;
 
   updateProfile(updatedName, updatedAbout)
-    .then((updatedUser) => {
-      profileTitle.textContent = updatedUser.name;
-      profileDescription.textContent = updatedUser.about;
-      submitButton.textContent = 'Сохранить';
-      submitButton.disabled = false;
-      closeModal(popupEdit);
-    })
-    .catch((err) => console.error('Ошибка при обновлении профиля:', err));
+  .then((updatedUser) => {
+    profileTitle.textContent = updatedUser.name;
+    profileDescription.textContent = updatedUser.about;
+    submitButton.textContent = 'Сохранить';
+    submitButton.disabled = false;
+    closeModal(popupEdit);
+  })
+  .catch((err) => console.error('Ошибка при обновлении профиля:', err))
+  .finally(() => {
+    submitButton.textContent = 'Сохранить';
+    submitButton.disabled = false;
+  });
 });
 
 // Открытие попапа для добавления новой карточки
-addButton.addEventListener('click', () => openModal(popupNewCard));
+addButton.addEventListener('click', () => {
+  openModal(popupNewCard);
+
+  // Обновляем состояние кнопки сабмита
+  toggleButtonState(
+    formNewCard.querySelectorAll(validationConfig.inputSelector),
+    formNewCard.querySelector(validationConfig.submitButtonSelector),
+    validationConfig
+  );
+
+  formNewCard.reset(); // Очистка полей формы
+});
 
 // Обработчик формы добавления новой карточки
 formNewCard.addEventListener('submit', function handleNewCardSubmit(event) {
@@ -212,27 +214,29 @@ formNewCard.addEventListener('submit', function handleNewCardSubmit(event) {
   submitButton.disabled = true;
 
   addNewCard(newCardName, newCardLink)
-    .then((newCard) => {
-      if (newCard && newCard._id) {
-        const cardElement = createCard(
-          newCard,
-          openDeletePopup,
-          (cardId, likeButton, likeCountElement) => {
-            toggleLike(cardId, likeButton, likeCountElement, cohortId, token);
-          },
-          handleCardClick,
-          currentUserId
-        );
-        cardList.prepend(cardElement);
-        closeModal(popupNewCard);
-        formNewCard.reset();
-        submitButton.textContent = 'Сохранить';
-        submitButton.disabled = false;
-      } else {
-        throw new Error('Ошибка при создании карточки: неверный формат данных');
-      }
-    })
-    .catch((err) => console.error('Ошибка при добавлении карточки:', err));
+  .then((newCard) => {
+    if (newCard && newCard._id) {
+      const cardElement = createCard(
+        newCard,
+        openDeletePopup,
+        (cardId, likeButton, likeCountElement) => {
+          toggleLike(cardId, likeButton, likeCountElement, cohortId, token);
+        },
+        handleCardClick,
+        currentUserId
+      );
+      cardList.prepend(cardElement);
+      closeModal(popupNewCard);
+      formNewCard.reset();
+    } else {
+      throw new Error('Ошибка при создании карточки: неверный формат данных');
+    }
+  })
+  .catch((err) => console.error('Ошибка при добавлении карточки:', err))
+  .finally(() => {
+    submitButton.textContent = 'Сохранить';
+    submitButton.disabled = false;
+  });
 });
 
 // Закрытие попапов при клике вне их области
